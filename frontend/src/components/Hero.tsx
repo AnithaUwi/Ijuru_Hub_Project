@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import heroImage from "../../public/coworking-bg.jpg";
+import heroImage from "@/assets/coworking-bg.jpg";
 
 const Hero = () => {
   const scrollToSection = (sectionId: string) => {
