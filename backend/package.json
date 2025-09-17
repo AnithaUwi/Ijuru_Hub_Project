@@ -1,0 +1,22 @@
+{
+  "name": "ijuru-hub-backend",
+  "version": "1.0.0",
+  "description": "Simple backend for IJURU HUB contact form",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.2",
+    "mongodb": "^6.19.0",
+    "mongoose": "^8.0.3",
+    "nodemailer": "^6.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

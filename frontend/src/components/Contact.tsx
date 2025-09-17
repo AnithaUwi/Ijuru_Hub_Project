@@ -2,9 +2,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { useState } from "react";
 
 const Contact = () => {
+  // State for form data
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    interest: 'Hot Desk',
+    message: ''
+  });
+  
+  // State for form submission
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null); // 'success', 'error', or null
+
   const contactInfo = [
     {
       icon: Phone,
@@ -36,6 +51,60 @@ const Contact = () => {
     },
   ];
 
+  // Handle input changes
+  const handleInputChange = (e:any) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e:any) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setSubmitStatus('success');
+        // Reset form
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          interest: 'Hot Desk',
+          message: ''
+        });
+        
+        // Clear success message after 5 seconds
+        setTimeout(() => setSubmitStatus(null), 5000);
+      } else {
+        throw new Error(result.message || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus('error');
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => setSubmitStatus(null), 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section
       id="contact"
@@ -57,7 +126,7 @@ const Contact = () => {
             Get <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">In Touch</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Ready to join our community? Book a workspace or schedule a tour—let’s get you productive.
+            Ready to join our community? Book a workspace or schedule a tour—let's get you productive.
           </p>
         </div>
 
@@ -69,7 +138,7 @@ const Contact = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               {contactInfo.map((info, i) => {
                 const Icon = info.icon;
-                const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
+                const Wrapper = ({ children }: { children: React.ReactNode }) =>
                   info.href ? (
                     <a
                       href={info.href}
@@ -133,11 +202,22 @@ const Contact = () => {
                 <CardTitle className="text-2xl text-center">Send us a Message</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Status Messages */}
+                {submitStatus === 'success' && (
+                  <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
+                    <CheckCircle className="h-5 w-5" />
+                    <span>Message sent successfully! We'll get back to you within 24 hours.</span>
+                  </div>
+                )}
+                {submitStatus === 'error' && (
+                  <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                    <AlertCircle className="h-5 w-5" />
+                    <span>Failed to send message. Please try again or contact us directly.</span>
+                  </div>
+                )}
+
                 <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    // hook up to your handler / API here
-                  }}
+                  onSubmit={handleSubmit}
                   className="space-y-6"
                   aria-label="Contact form"
                 >
@@ -146,13 +226,31 @@ const Contact = () => {
                       <label htmlFor="firstName" className="mb-2 block text-sm font-medium text-foreground">
                         First Name<span className="text-primary">*</span>
                       </label>
-                      <Input id="firstName" name="firstName" placeholder="John" required autoComplete="given-name" />
+                      <Input 
+                        id="firstName" 
+                        name="firstName" 
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        placeholder="John" 
+                        required 
+                        autoComplete="given-name"
+                        disabled={isSubmitting}
+                      />
                     </div>
                     <div>
                       <label htmlFor="lastName" className="mb-2 block text-sm font-medium text-foreground">
                         Last Name<span className="text-primary">*</span>
                       </label>
-                      <Input id="lastName" name="lastName" placeholder="Doe" required autoComplete="family-name" />
+                      <Input 
+                        id="lastName" 
+                        name="lastName" 
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        placeholder="Doe" 
+                        required 
+                        autoComplete="family-name"
+                        disabled={isSubmitting}
+                      />
                     </div>
                   </div>
 
@@ -161,13 +259,32 @@ const Contact = () => {
                       <label htmlFor="email" className="mb-2 block text-sm font-medium text-foreground">
                         Email<span className="text-primary">*</span>
                       </label>
-                      <Input id="email" name="email" type="email" placeholder="john@example.com" required autoComplete="email" />
+                      <Input 
+                        id="email" 
+                        name="email" 
+                        type="email" 
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="john@example.com" 
+                        required 
+                        autoComplete="email"
+                        disabled={isSubmitting}
+                      />
                     </div>
                     <div>
                       <label htmlFor="phone" className="mb-2 block text-sm font-medium text-foreground">
                         Phone Number
                       </label>
-                      <Input id="phone" name="phone" type="tel" placeholder="+250 XXX XXX XXX" autoComplete="tel" />
+                      <Input 
+                        id="phone" 
+                        name="phone" 
+                        type="tel" 
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="+250 XXX XXX XXX" 
+                        autoComplete="tel"
+                        disabled={isSubmitting}
+                      />
                     </div>
                   </div>
 
@@ -178,8 +295,10 @@ const Contact = () => {
                     <select
                       id="interest"
                       name="interest"
+                      value={formData.interest}
+                      onChange={handleInputChange}
                       className="w-full rounded-md border border-input bg-background px-3 py-2"
-                      defaultValue="Hot Desk"
+                      disabled={isSubmitting}
                     >
                       <option>Hot Desk</option>
                       <option>Dedicated Desk</option>
@@ -196,13 +315,20 @@ const Contact = () => {
                     <Textarea
                       id="message"
                       name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
                       placeholder="Tell us about your workspace needs..."
                       className="min-h-[120px]"
+                      disabled={isSubmitting}
                     />
                   </div>
 
-                  <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3">
-                    Send Message
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </Button>
                 </form>
               </CardContent>
