@@ -1,14 +1,10 @@
-// routes/bookingRoutes.js
+// route/bookingroute.js
 import express from 'express';
-import { 
-  createBooking, 
-  getAllBookings, 
-  getBookingByReference,
+import {
+  createBooking,
+  getAllBookings,
   updateBookingStatus,
-  getBookingStats,
-  bulkUpdateBookings,
-  getBookingsByDateRange,
-  deleteBooking
+  getBookingByReference
 } from '../controller/Bookingcontroller.js';
 
 const router = express.Router();
@@ -16,25 +12,13 @@ const router = express.Router();
 // Create new booking
 router.post('/', createBooking);
 
-// Get all bookings (for admin dashboard)
+// Get all bookings (with optional filters)
 router.get('/', getAllBookings);
-
-// Get booking statistics
-router.get('/stats', getBookingStats);
-
-// Get bookings by date range
-router.get('/date-range', getBookingsByDateRange);
 
 // Get booking by reference
 router.get('/reference/:reference', getBookingByReference);
 
-// Update booking status or payment status
+// Update booking status
 router.patch('/:id/status', updateBookingStatus);
-
-// Bulk update bookings
-router.patch('/bulk-update', bulkUpdateBookings);
-
-// Delete (cancel) booking
-router.delete('/:id', deleteBooking);
 
 export default router;
