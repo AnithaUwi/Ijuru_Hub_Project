@@ -1,7 +1,8 @@
+// models/bookingmodel.js
 import mongoose from 'mongoose';
 
 const bookingSchema = new mongoose.Schema({
-  // User Information
+  // Basic Info
   name: {
     type: String,
     required: true,
@@ -18,46 +19,53 @@ const bookingSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-
-  // Booking Details
+  
+  // Space Info
+  spaceName: {
+    type: String,
+    required: true,
+    trim: true
+  },
   spaceType: {
     type: String,
     required: true,
-    enum: ['Hot Desk', 'Dedicated Desk', 'Private Office', 'Meeting Room']
-  },
-  spaceName: {
-    type: String,
-    required: true // e.g., "Table 1 - Seat A", "Meeting Room A", etc.
+    trim: true
   },
   spaceId: {
     type: String,
-    required: true // e.g., "t1s1", "mr1", etc.
+    required: true,
+    trim: true
   },
-
-  // Date & Time
+  
+  // Booking Details
   date: {
     type: Date,
     required: true
   },
   time: {
     type: String,
-    required: true // e.g., "09:00"
+    required: true,
+    trim: true
   },
   duration: {
-    type: String,
-    required: true // e.g., "1", "2", "4", "8"
+    type: Number,
+    required: true,
+    default: 1
   },
-
-  // Pricing
   price: {
     type: String,
-    required: true // e.g., "5,000 RWF/hour"
+    required: true
   },
-
+  message: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  
   // Status
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'cancelled', 'completed'],
+    enum: ['pending', 'confirmed', 'completed', 'cancelled'],
     default: 'pending'
   },
   paymentStatus: {
@@ -65,26 +73,15 @@ const bookingSchema = new mongoose.Schema({
     enum: ['pending', 'paid', 'failed'],
     default: 'pending'
   },
-
-  // Metadata
+  
+  // Reference
   bookingReference: {
     type: String,
+    required: true,
     unique: true
   }
 }, {
   timestamps: true
-});
-
-// Generate booking reference before saving
-bookingSchema.pre('save', function(next) {
-  if (!this.bookingReference) {
-    const prefix = this.spaceType === 'Hot Desk' ? 'HD' : 
-                   this.spaceType === 'Dedicated Desk' ? 'DD' :
-                   this.spaceType === 'Private Office' ? 'PO' : 'MR';
-    const timestamp = Date.now().toString().slice(-6);
-    this.bookingReference = `${prefix}${timestamp}`;
-  }
-  next();
 });
 
 export default mongoose.model('Booking', bookingSchema);
